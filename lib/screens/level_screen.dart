@@ -575,7 +575,7 @@ class _LevelScreenState extends State<LevelScreen> {
         children: [
           MentorBubble(
             tips: ['Step 3: Test it! If it fails, go back and improve.'],
-            override: _mentorReaction,
+            overrideMessage: _mentorReaction,
           ),
           const SizedBox(height: 14),
           Center(
