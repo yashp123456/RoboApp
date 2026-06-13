@@ -19,7 +19,6 @@ class AppTheme {
     );
 
     return base.copyWith(
-      textTheme: base.textTheme.apply(fontSizeFactor: 1.05),
       appBarTheme: const AppBarTheme(
         backgroundColor: primary,
         foregroundColor: Colors.white,
