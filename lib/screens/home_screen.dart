@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/game_state.dart';
+import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/coin_badge.dart';
 import 'level_select_screen.dart';
@@ -101,14 +102,46 @@ class HomeScreen extends StatelessWidget {
   }
 
   void _showSettings(BuildContext context) {
+    final email = AuthService().currentUser?.email ?? 'Signed in';
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Settings'),
-        content: const Text(
-            'RoboBuilders teaches the engineering design cycle: design a robot, '
-            'program it with blocks, test it, and improve.\n\n'
-            'Resetting will erase all coins, unlocks, and progress.'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.account_circle, color: AppTheme.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(email,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Text(
+                'RoboBuilders teaches the engineering design cycle: design a '
+                'robot, program it with blocks, test it, and improve.\n\n'
+                'Your progress is saved to your account in the cloud.\n\n'
+                'Resetting will erase all coins, unlocks, and progress.'),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.logout),
+                label: const Text('Sign Out'),
+                onPressed: () async {
+                  await AuthService().signOut();
+                  if (context.mounted) context.read<GameState>().clear();
+                  if (ctx.mounted) Navigator.pop(ctx);
+                },
+              ),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),

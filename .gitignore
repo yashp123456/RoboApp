@@ -10,6 +10,14 @@
 .svn/
 migrate_working_dir/
 
+# Firebase (generated per-project by `flutterfire configure` — do not commit)
+lib/firebase_options.dart
+**/ios/Runner/GoogleService-Info.plist
+**/android/app/google-services.json
+.firebase/
+firebase.json
+.firebaserc
+
 # IntelliJ / Android Studio
 *.iml
 *.ipr

@@ -49,14 +49,61 @@ test/                       Unit tests for the simulation engine
   flutter doctor
   ```
 
+### 0.5 Set up Firebase (REQUIRED — the app won't build without this)
+
+The app uses **Firebase Authentication** (email/password sign-in) and **Cloud Firestore**
+(to sync each player's coins, levels, and unlocks to their account). Firebase config is
+**per-project**, so you generate it yourself — `lib/firebase_options.dart` and the native
+config files are intentionally **not** committed.
+
+1. **Create a Firebase project** at https://console.firebase.google.com → *Add project*.
+2. **Enable Email/Password sign-in:** in the console, **Build → Authentication → Get started →
+   Sign-in method → Email/Password → Enable → Save**.
+3. **Create the database:** **Build → Firestore Database → Create database** (start in
+   *Production mode*; pick a region).
+4. **Set Firestore security rules** so each player can only touch their own document
+   (**Firestore → Rules**, paste this, **Publish**):
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /players/{uid} {
+         allow read, write: if request.auth != null && request.auth.uid == uid;
+       }
+     }
+   }
+   ```
+5. **Install the CLIs** (one time):
+   ```bash
+   npm install -g firebase-tools        # the Firebase CLI
+   dart pub global activate flutterfire_cli
+   firebase login                        # log into the Google account that owns the project
+   ```
+6. **Connect this app to your project** — run from the project folder *after* `flutter create .`:
+   ```bash
+   flutterfire configure
+   ```
+   Pick your project and the iOS + Android platforms. This generates `lib/firebase_options.dart`
+   and drops `GoogleService-Info.plist` / `google-services.json` into the native folders.
+7. **iOS only:** Firebase needs iOS 13+. In `ios/Podfile` make sure the first line is
+   `platform :ios, '13.0'`, then:
+   ```bash
+   cd ios && pod install && cd ..
+   ```
+
+> ⚠️ A note for a kids' app (ages 7–13): collecting emails/passwords from children has
+> **COPPA/GDPR-K** implications. For a real launch, plan for parent-managed accounts or
+> parental consent. The email/password flow here is fine for development and testing.
+
 ### Run in VS Code (Android emulator, iOS simulator on Mac, or a real device)
 
 1. Open VS Code and install the **Flutter** extension (it pulls in the Dart extension too).
 2. Open this project folder (`RoboApp`) in VS Code.
-3. Open a terminal (`` Ctrl+` ``) **inside the project folder** and generate the native projects + dependencies:
+3. Open a terminal (`` Ctrl+` ``) **inside the project folder** and generate the native projects + dependencies, then connect Firebase (step 0.5):
    ```bash
    flutter create .
    flutter pub get
+   flutterfire configure   # generates lib/firebase_options.dart — see step 0.5
    ```
 4. Pick a device in the bottom-right status bar of VS Code (an emulator/simulator or a plugged-in phone).
 5. Press **F5** (or Run ▸ Start Debugging). The app builds and launches with hot reload.
